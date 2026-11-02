@@ -3,11 +3,13 @@ import type { Model } from '../content/types'
 import { absoluteUrl } from '../lib/paths'
 
 /**
- * Absolute because these pages now serve from offers.aryahonda.com while
- * save_lead still lives on aryahonda.com. A relative path would post into
- * this subdomain, where no such route exists, and the lead would vanish.
+ * save_lead lives on aryahonda.com, but these pages serve from a subdomain,
+ * so the production build must name that host or the lead posts into a route
+ * this origin does not have. Empty by default, which keeps the path relative:
+ * a local or e2e build then reaches the replica, never the live database.
  */
-export const LEAD_ENDPOINT = 'https://aryahonda.com/home/save_lead'
+const LEADS_ORIGIN = process.env.NEXT_PUBLIC_LEADS_ORIGIN ?? ''
+export const LEAD_ENDPOINT = `${LEADS_ORIGIN}/home/save_lead`
 
 /**
  * The dropdown lists exactly the models that have an offers page, using the

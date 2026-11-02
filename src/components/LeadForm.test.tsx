@@ -12,8 +12,11 @@ describe('LeadForm', () => {
     expect(out).toContain('method="post"')
   })
 
-  it('posts to save_lead on aryahonda.com, which this subdomain does not host', () => {
-    expect(LEAD_ENDPOINT).toBe('https://aryahonda.com/home/save_lead')
+  it('stays relative unless a deploy names the leads origin', () => {
+    // Guards the replica: an absolute default would let `npm run test:e2e`
+    // write real rows into the live database and notify the sales team.
+    expect(LEAD_ENDPOINT).toBe('/home/save_lead')
+    expect(html('honda-city')).not.toMatch(/action="https?:/)
   })
 
   it('sends exactly the five fields PHP reads', () => {
@@ -23,10 +26,8 @@ describe('LeadForm', () => {
     }
   })
 
-  it('carries an absolute thank-you redirect back to this subdomain', () => {
-    expect(html('honda-amaze')).toContain(
-      'name="url" value="https://offers.aryahonda.com/honda-amaze/thank-you/"',
-    )
+  it('carries a thank-you redirect for this model', () => {
+    expect(html('honda-amaze')).toContain('name="url" value="/honda-amaze/thank-you/"')
   })
 
   it('offers a Select Car Model dropdown, like the main site', () => {

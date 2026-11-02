@@ -17,8 +17,11 @@ export const asset = (path: string) => `${BASE_PATH}${path}`
 /** Prefix an in-site route — e.g. '/honda-city/'. */
 export const url = (path: string) => `${BASE_PATH}${path}`
 
-/** Origin this site is served from. */
-export const SITE_URL = 'https://offers.aryahonda.com'
+/**
+ * Origin this site is served from. Empty by default so a local or e2e build
+ * stays relative and cannot reach production; the deploy sets it.
+ */
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? ''
 
 /**
  * Absolute form of url(). Needed wherever a URL leaves this origin and comes

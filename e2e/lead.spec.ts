@@ -16,13 +16,13 @@ test('submitting the offers form writes a lead to MySQL', async ({ page }) => {
   const name = `e2e-${RUN}-city`
   expect(countNamed(name)).toBe(0)
 
-  await page.goto('/offers/honda-city/')
+  await page.goto('/honda-city/')
   await page.fill('input[name="name"]', name)
   await page.fill('input[name="mobile"]', '9876543210')
   await page.fill('input[name="email"]', 'e2e@example.com')
   await page.click('button[type="submit"]')
 
-  await page.waitForURL('**/offers/honda-city/thank-you/**')
+  await page.waitForURL('**/honda-city/thank-you/**')
   await expect(page.locator('h1')).toContainText('Thank you')
 
   expect(countNamed(name)).toBe(1)
@@ -31,12 +31,12 @@ test('submitting the offers form writes a lead to MySQL', async ({ page }) => {
 test('the stored lead carries the right model and source', async ({ page }) => {
   const name = `e2e-${RUN}-elevate`
 
-  await page.goto('/offers/honda-elevate/')
+  await page.goto('/honda-elevate/')
   await page.fill('input[name="name"]', name)
   await page.fill('input[name="mobile"]', '9876543211')
   await page.fill('input[name="email"]', 'e2e2@example.com')
   await page.click('button[type="submit"]')
-  await page.waitForURL('**/offers/honda-elevate/thank-you/**')
+  await page.waitForURL('**/honda-elevate/thank-you/**')
 
   const row = query(
     `SELECT model, source FROM a1651tt5_hondaary.car_contact_form WHERE name='${name}';`,
@@ -49,7 +49,7 @@ test('the model dropdown is what gets stored, including when changed', async ({ 
   const name = `e2e-${RUN}-select`
 
   // Landing page is City, but the visitor picks a different model.
-  await page.goto('/offers/honda-city/')
+  await page.goto('/honda-city/')
   await expect(page.locator('select[name="model"]')).toHaveValue('Honda City')
 
   await page.fill('input[name="name"]', name)
@@ -57,7 +57,7 @@ test('the model dropdown is what gets stored, including when changed', async ({ 
   await page.fill('input[name="email"]', 'e2e3@example.com')
   await page.selectOption('select[name="model"]', 'Honda Elevate')
   await page.click('button[type="submit"]')
-  await page.waitForURL('**/offers/honda-city/thank-you/**')
+  await page.waitForURL('**/honda-city/thank-you/**')
 
   const stored = query(
     `SELECT model FROM a1651tt5_hondaary.car_contact_form WHERE name='${name}';`,
@@ -68,7 +68,7 @@ test('the model dropdown is what gets stored, including when changed', async ({ 
 test('the lineup index form stores a lead and lands on the shared thank-you', async ({ page }) => {
   const name = `e2e-${RUN}-index`
 
-  await page.goto('/offers/')
+  await page.goto('/')
   // No model preselected here — the visitor must choose, as on the main site.
   await expect(page.locator('select[name="model"]')).toHaveValue('')
 
@@ -78,7 +78,7 @@ test('the lineup index form stores a lead and lands on the shared thank-you', as
   await page.selectOption('select[name="model"]', 'Honda ZR-V')
   await page.click('button[type="submit"]')
 
-  await page.waitForURL('**/offers/thank-you/**')
+  await page.waitForURL('**/thank-you/**')
   await expect(page.locator('h1')).toContainText('Thank you')
 
   const stored = query(

@@ -1,26 +1,19 @@
-# Arya Honda — `/offers/` landing pages
+# Arya Honda — offers landing pages
 
-Static Google Ads landing pages served from `aryahonda.com/offers/<model>/`.
-Built with Next.js static export, so **no Node runtime is needed on the server**.
+Google Ads landing pages served from `offers.aryahonda.com/<model>/`, as a Next.js
+server build deployed by Coolify.
 
 Four models: `honda-city`, `honda-amaze`, `honda-elevate`, `honda-zrv`.
 
-## Why static
+## Why a subdomain
 
-The live site is CodeIgniter 4.0.3 on PHP 7.4 on cPanel shared hosting, which cannot
-run a Node server. The live `.htaccess` sends a request to CodeIgniter only when it
-matches neither a file nor a directory:
+These pages used to ship as a static export unzipped into `public_html/offers/`,
+because the live site is CodeIgniter 4.0.3 on PHP 7.4 on cPanel shared hosting and
+cannot run Node. They now run as a real Next.js server on their own host, which is
+why `output: 'export'` and the `/offers` `basePath` are both gone.
 
-```apache
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php/$1 [L]
-```
-
-So a real `offers/` directory is served straight by Apache and the framework never
-sees it. A separate rule strips trailing slashes only for non-directories, so
-`/offers/honda-city/` keeps its slash and resolves to `index.html` — which is why
-`trailingSlash: true` is set in `next.config.ts`.
+The split costs one thing. `save_lead` still lives on `aryahonda.com`, so every URL
+that leaves this origin and comes back has to name its host — see Lead flow.
 
 ## Lead flow
 
@@ -36,9 +29,12 @@ sales team's reporting — the same endpoint the `/mumbai/<model>` pages use. Le
 the MySQL `car_contact_form` table and trigger the existing SendGrid notification, so
 they appear in the normal admin panel with no changes to any PHP file.
 
-The endpoint is **root-relative on purpose**. The identical build works locally and in
-production, and a local test can never post into the live database. Do not change it
-to an absolute URL.
+The endpoint origin is **empty by default**, which leaves the path root-relative so a
+local or e2e build reaches the replica and can never post into the live database.
+Production supplies it as `NEXT_PUBLIC_LEADS_ORIGIN`, and `NEXT_PUBLIC_SITE_URL` does
+the same for the canonicals and the hidden `url` field — that one must be absolute
+because `save_lead` redirects to it from another host, where a relative value would
+resolve against `aryahonda.com`. Do not hardcode either origin.
 
 After saving, `save_lead()` redirects to whatever the hidden `url` field holds, which
 is how the per-model thank-you page works — and it gives you a dedicated URL to fire a
@@ -46,17 +42,33 @@ Google Ads conversion on.
 
 ## Build and deploy
 
+Pushing to `main` on <https://github.com/semlypro/aryahonda-offers> is the deploy:
+Coolify builds the repo with Railpack and restarts the container.
+
+Production environment variables. All four are needed **at build time**, because
+`NEXT_PUBLIC_*` values are inlined into the bundle rather than read at runtime:
+
+| Variable | Value |
+| --- | --- |
+| `NEXT_PUBLIC_LEADS_ORIGIN` | `https://aryahonda.com` |
+| `NEXT_PUBLIC_SITE_URL` | `https://offers.aryahonda.com` |
+| `NODE_ENV` | `production` |
+| `PORT` | `3000` |
+
+Leaving either `NEXT_PUBLIC_*` unset does not fail the build — it silently produces
+relative URLs, so the form posts into this subdomain and the lead is lost. Check a
+page's `action` after any change to the environment.
+
+Locally:
+
 ```bash
 npm install
 node scripts/fetch-images.mjs   # first run only, or when imagery changes
-npm run build
-npm run package                 # creates offers-upload.zip
+npm run dev
 ```
 
-In cPanel File Manager: upload `offers-upload.zip` into `public_html/offers/` and
-extract it **there**. The archive root contains `honda-city/`, `honda-amaze/`, `_next/`
-and so on — not a wrapping `out/` folder. Extracting in the wrong place produces
-`public_html/offers/out/...` and every URL 404s.
+`scripts/package.mjs` and `offers-upload.zip` belong to the retired cPanel upload and
+play no part in deploying.
 
 ## Testing
 
@@ -112,9 +124,10 @@ appears automatically.
 - **No campaign attribution.** `save_lead()` writes only five fields and hardcodes
   `source = 'Adwords'`, discarding anything else. UTM data cannot be stored without a
   PHP change (~3 lines, writing into the unused `inquiry` column).
-- **No version control.** There is no history or rollback for this project.
 - **No Google Ads conversion tag yet** — add it to the thank-you page once you have the
   conversion ID.
-- The live site does not redirect `http://` to `https://`, and `www` and non-`www` both
-  serve. Point ad destination URLs at `https://aryahonda.com/offers/<model>/`
-  explicitly. Each page carries a `rel="canonical"` to that form.
+- Point ad destination URLs at `https://offers.aryahonda.com/<model>/`. Coolify
+  terminates TLS and redirects `http://` and `www.` to that form, and each page
+  carries a matching `rel="canonical"`.
+- The retired `aryahonda.com/offers/` directory still serves the old static copy. Until
+  it is removed or redirected, the same content sits on two URLs.

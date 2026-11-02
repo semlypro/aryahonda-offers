@@ -1,16 +1,24 @@
-# Arya Honda /offers/ — static export. No PHP here.
+# Arya Honda offers — static export. No PHP here.
 #
-# The parent .htaccess sends a request to CodeIgniter only when it matches
-# neither a file nor a directory, so everything in this folder is served
-# directly by Apache. These rules make that explicit and add caching.
+# Used when these pages are served by Apache rather than the Node build:
+# either from a subdomain document root, or from public_html/offers/ where
+# the parent .htaccess hands off anything matching a real file or directory.
 
-# Serve index.html for /offers/ and /offers/<model>/ even if the server's
-# DirectoryIndex does not list it.
+# Serve index.html for / and /<model>/ even if the server's DirectoryIndex
+# does not list it.
 DirectoryIndex index.html
 
-# This folder is plain static output; no rewriting needed.
 <IfModule mod_rewrite.c>
-    RewriteEngine Off
+    RewriteEngine On
+
+    # Canonical origin: https, no www. Ad destination URLs and the
+    # rel="canonical" on every page use that form, so anything else has to
+    # land on it rather than serve a duplicate.
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
 </IfModule>
 
 Options -Indexes

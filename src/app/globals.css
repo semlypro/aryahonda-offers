@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0b0b0f;
+  --color-ink-soft: #16161d;
+  --color-paper: #ffffff;
+  --color-paper-warm: #faf8f5;
+  --color-paper-line: #e8e4dd;
+  --color-brand: #e40521;
+  --color-brand-dark: #b8001a;
+  --color-accent: #f5a623;
+  --color-accent-soft: #fff3dd;
+  --color-muted: #6b6b76;
+  --radius-card: 16px;
+
+  /* Honda Cars India lineup tokens, read from their live homepage. */
+  --color-honda-ink: #2c2e3f;   /* model names, prices */
+  --color-honda-mute: #8c8c8c;  /* "Starts from" labels */
+  --color-honda-rule: #838383;  /* 0.5px grid hairlines */
+
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}

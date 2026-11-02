@@ -6,7 +6,7 @@ import { SiteFooter } from '../../components/SiteFooter'
 import { SiteHeader } from '../../components/SiteHeader'
 import { DEALER } from '../../content/dealer'
 import { getModel, models } from '../../content/models'
-import { asset } from '../../lib/paths'
+import { absoluteUrl, asset } from '../../lib/paths'
 
 export function generateStaticParams() {
   return models.map((m) => ({ slug: m.slug }))
@@ -23,7 +23,7 @@ export async function generateMetadata({
   return {
     title: model.metaTitle,
     description: model.metaDescription,
-    alternates: { canonical: `https://aryahonda.com/offers/${model.slug}/` },
+    alternates: { canonical: absoluteUrl(`/${model.slug}/`) },
   }
 }
 

@@ -1,13 +1,13 @@
 import { models } from '../content/models'
 import type { Model } from '../content/types'
-import { url } from '../lib/paths'
+import { absoluteUrl } from '../lib/paths'
 
 /**
- * Root-relative on purpose: the same build then works against the local
- * replica and production, and a local test can never post into the live
- * database.
+ * Absolute because these pages now serve from offers.aryahonda.com while
+ * save_lead still lives on aryahonda.com. A relative path would post into
+ * this subdomain, where no such route exists, and the lead would vanish.
  */
-export const LEAD_ENDPOINT = '/home/save_lead'
+export const LEAD_ENDPOINT = 'https://aryahonda.com/home/save_lead'
 
 /**
  * The dropdown lists exactly the models that have an offers page, using the
@@ -26,7 +26,9 @@ const field =
  * and sends the visitor to the shared thank-you page.
  */
 export function LeadForm({ model, heading }: { model?: Model; heading?: string }) {
-  const thankYou = model ? url(`/${model.slug}/thank-you/`) : url('/thank-you/')
+  const thankYou = model
+    ? absoluteUrl(`/${model.slug}/thank-you/`)
+    : absoluteUrl('/thank-you/')
 
   return (
     <form method="post" action={LEAD_ENDPOINT} className="w-full">

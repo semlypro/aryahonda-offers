@@ -5,13 +5,13 @@ import { SiteFooter } from '../components/SiteFooter'
 import { SiteHeader } from '../components/SiteHeader'
 import { DEALER } from '../content/dealer'
 import { models } from '../content/models'
-import { url } from '../lib/paths'
+import { absoluteUrl, url } from '../lib/paths'
 
 export const metadata: Metadata = {
   title: 'Honda Car Offers in Mumbai | Arya Honda',
   description:
     'Current offers on the Honda City, Amaze, Elevate and ZR-V at Arya Honda, an authorised Honda dealership in Mumbai since 2005.',
-  alternates: { canonical: 'https://aryahonda.com/offers/' },
+  alternates: { canonical: absoluteUrl('/') },
 }
 
 export default function OffersIndex() {

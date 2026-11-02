@@ -16,3 +16,13 @@ export const asset = (path: string) => `${BASE_PATH}${path}`
 
 /** Prefix an in-site route — e.g. '/honda-city/'. */
 export const url = (path: string) => `${BASE_PATH}${path}`
+
+/** Origin this site is served from. */
+export const SITE_URL = 'https://offers.aryahonda.com'
+
+/**
+ * Absolute form of url(). Needed wherever a URL leaves this origin and comes
+ * back: canonicals, and the `url` field save_lead redirects to after posting
+ * to aryahonda.com — a relative value there would resolve against that host.
+ */
+export const absoluteUrl = (path: string) => `${SITE_URL}${url(path)}`
